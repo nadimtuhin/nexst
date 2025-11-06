@@ -46,3 +46,8 @@ logs/
 # Environment files (keep .env.example, .env.development, .env.test)
 .env.production
 .env.staging
+
+# Database
+*.db
+*.db-journal
+prisma/migrations/*/migration.sql
