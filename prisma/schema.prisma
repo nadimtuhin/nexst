@@ -14,17 +14,52 @@ datasource db {
 // DATABASE_URL=postgresql://user:password@localhost:5432/nexst_dev
 
 // ============================================
+// Enums
+// ============================================
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+// ============================================
 // User Model
 // ============================================
 model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String
+  password      String
+  age           Int?
+  role          UserRole       @default(USER)
+  isActive      Boolean        @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// ============================================
+// RefreshToken Model
+// ============================================
+model RefreshToken {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  age       Int?
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
 }
 
 // ============================================
