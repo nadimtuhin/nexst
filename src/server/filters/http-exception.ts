@@ -81,6 +81,16 @@ export class UnprocessableEntityException extends HttpException {
 }
 
 /**
+ * 429 Too Many Requests Exception
+ */
+export class TooManyRequestsException extends HttpException {
+  constructor(message = 'Too Many Requests', errors?: any) {
+    super(message, 429, errors)
+    this.name = 'TooManyRequestsException'
+  }
+}
+
+/**
  * 500 Internal Server Error Exception
  */
 export class InternalServerErrorException extends HttpException {
