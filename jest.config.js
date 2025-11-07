@@ -25,6 +25,8 @@ const customJestConfig = {
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
   ],
+  // Run tests serially to avoid database conflicts with SQLite
+  maxWorkers: 1,
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
