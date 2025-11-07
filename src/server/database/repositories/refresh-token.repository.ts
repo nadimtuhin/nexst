@@ -58,6 +58,7 @@ export class RefreshTokenRepository extends BaseRepository<RefreshToken> {
   async createToken(data: {
     token: string
     userId: number
+    tenantId?: number
     expiresAt: Date
   }): Promise<RefreshToken> {
     return this.create(data)

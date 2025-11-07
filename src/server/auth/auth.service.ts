@@ -271,11 +271,12 @@ export class AuthService {
    * @returns Token pair
    */
   private async generateTokensForUser(user: User): Promise<TokenResponse> {
-    // Generate token pair
+    // Generate token pair with optional tenant context
     const tokens = this.tokenService.generateTokenPair({
       sub: user.id,
       email: user.email,
       role: user.role,
+      tenantId: user.tenantId ?? undefined,
     })
 
     // Calculate refresh token expiration
@@ -285,10 +286,11 @@ export class AuthService {
     )
     expiresAt.setTime(expiresAt.getTime() + expiresInMs)
 
-    // Store refresh token in database
+    // Store refresh token in database with optional tenant context
     await this.refreshTokenRepository.createToken({
       token: tokens.refreshToken,
       userId: user.id,
+      tenantId: user.tenantId ?? undefined,
       expiresAt,
     })
 
