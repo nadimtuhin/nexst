@@ -174,6 +174,30 @@ export class RbacService {
     return this.roleRepository.getRoleUsers(roleId, tenantId)
   }
 
+  /**
+   * Get all tenants a user belongs to
+   */
+  async getUserTenants(userId: number) {
+    // Get all user role assignments
+    const userRoles = await this.roleRepository.prismaService.userRole_New.findMany({
+      where: { userId },
+      include: {
+        tenant: true,
+      },
+      distinct: ['tenantId'],
+    })
+
+    // Extract unique tenants
+    const tenants = userRoles
+      .filter((ur) => ur.tenant !== null)
+      .map((ur) => ur.tenant)
+      .filter((tenant, index, self) =>
+        self.findIndex((t) => t?.id === tenant?.id) === index
+      )
+
+    return tenants
+  }
+
   // ============================================
   // Permission Management
   // ============================================

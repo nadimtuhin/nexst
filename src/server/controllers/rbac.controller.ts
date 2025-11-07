@@ -149,6 +149,17 @@ export class RbacController {
     }
   }
 
+  /**
+   * GET /api/rbac/users/:userId/tenants
+   * Get all tenants a user belongs to
+   */
+  @Get('/users/:userId/tenants')
+  async getUserTenants(@Param('userId') userId: string) {
+    return {
+      data: await this.rbacService.getUserTenants(parseInt(userId)),
+    }
+  }
+
   // ============================================
   // Permission Endpoints
   // ============================================
