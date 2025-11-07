@@ -63,6 +63,10 @@ export interface AwsConfig {
   s3Bucket?: string
 }
 
+export interface MultiTenantConfig {
+  enabled: boolean
+}
+
 /**
  * Configuration Service
  * Loads and validates environment variables
@@ -268,6 +272,15 @@ export class ConfigService {
       accessKeyId: this.get('AWS_ACCESS_KEY_ID'),
       secretAccessKey: this.get('AWS_SECRET_ACCESS_KEY'),
       s3Bucket: this.get('AWS_S3_BUCKET'),
+    }
+  }
+
+  /**
+   * Get multi-tenant configuration
+   */
+  get multiTenant(): MultiTenantConfig {
+    return {
+      enabled: this.get('MULTI_TENANT_ENABLED'),
     }
   }
 }

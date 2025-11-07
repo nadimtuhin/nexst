@@ -65,4 +65,7 @@ export const configValidationSchema = Joi.object({
   AWS_ACCESS_KEY_ID: Joi.string().optional(),
   AWS_SECRET_ACCESS_KEY: Joi.string().optional(),
   AWS_S3_BUCKET: Joi.string().optional(),
+
+  // Multi-Tenancy
+  MULTI_TENANT_ENABLED: Joi.boolean().default(false),
 })

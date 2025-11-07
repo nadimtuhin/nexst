@@ -22,6 +22,32 @@ enum UserRole {
   MODERATOR
 }
 
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// ============================================
+// Tenant Model (Multi-Tenancy - Optional)
+// ============================================
+model Tenant {
+  id        Int          @id @default(autoincrement())
+  name      String
+  slug      String       @unique
+  domain    String?      @unique
+  status    TenantStatus @default(ACTIVE)
+  settings  String?      // JSON string for tenant-specific settings
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  users         User[]
+  refreshTokens RefreshToken[]
+
+  @@map("tenants")
+}
+
 // ============================================
 // User Model
 // ============================================
@@ -34,12 +60,15 @@ model User {
   role          UserRole       @default(USER)
   isActive      Boolean        @default(true)
   lastLoginAt   DateTime?
+  tenantId      Int?           // Optional: for multi-tenancy support
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
   // Relations
+  tenant        Tenant?        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
 
+  @@index([tenantId])
   @@map("users")
 }
 
@@ -50,14 +79,17 @@ model RefreshToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
   userId    Int
+  tenantId  Int?     // Optional: for multi-tenancy support
   expiresAt DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([tenantId])
   @@index([token])
   @@map("refresh_tokens")
 }
