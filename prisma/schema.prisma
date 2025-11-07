@@ -28,6 +28,23 @@ enum TenantStatus {
   SUSPENDED
 }
 
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  MANAGE
+}
+
+enum PermissionResource {
+  USER
+  TENANT
+  ROLE
+  SETTINGS
+  ANALYTICS
+  ALL
+}
+
 // ============================================
 // Tenant Model (Multi-Tenancy - Optional)
 // ============================================
@@ -44,6 +61,8 @@ model Tenant {
   // Relations
   users         User[]
   refreshTokens RefreshToken[]
+  roles         Role[]         // RBAC: Tenant-specific roles
+  userRoles     UserRole_New[] // RBAC: User role assignments within tenant
 
   @@map("tenants")
 }
@@ -65,8 +84,9 @@ model User {
   updatedAt     DateTime       @updatedAt
 
   // Relations
-  tenant        Tenant?        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant        Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   refreshTokens RefreshToken[]
+  roles         UserRole_New[] // RBAC: User can have multiple roles
 
   @@index([tenantId])
   @@map("users")
@@ -92,6 +112,83 @@ model RefreshToken {
   @@index([tenantId])
   @@index([token])
   @@map("refresh_tokens")
+}
+
+// ============================================
+// RBAC Models
+// ============================================
+
+// Permission: System-wide permissions (e.g., "users:create", "tenants:read")
+model Permission {
+  id          Int                @id @default(autoincrement())
+  action      PermissionAction   // CREATE, READ, UPDATE, DELETE, MANAGE
+  resource    PermissionResource // USER, TENANT, ROLE, SETTINGS, ANALYTICS, ALL
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  // Relations
+  roles RolePermission[]
+
+  @@unique([action, resource])
+  @@map("permissions")
+}
+
+// Role: Tenant-scoped roles with custom permissions
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g., "Admin", "Editor", "Viewer"
+  description String?
+  tenantId    Int?     // Null = system-wide role, otherwise tenant-specific
+  isSystem    Boolean  @default(false) // System roles can't be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant?          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  permissions RolePermission[]
+  users       UserRole_New[]
+
+  @@unique([name, tenantId])
+  @@index([tenantId])
+  @@map("roles")
+}
+
+// RolePermission: Many-to-many relationship between roles and permissions
+model RolePermission {
+  id           Int      @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  createdAt    DateTime @default(now())
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+// UserRole_New: Many-to-many relationship between users and roles
+model UserRole_New {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  roleId    Int
+  tenantId  Int?     // For tenant-scoped role assignments
+  createdAt DateTime @default(now())
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId, tenantId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([tenantId])
+  @@map("user_roles")
 }
 
 // ============================================
