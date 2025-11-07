@@ -12,6 +12,7 @@ export default function Home() {
         <li>✅ Centralized Error Handling</li>
         <li>✅ Middleware & Guards</li>
         <li>✅ Full Unit Test Coverage</li>
+        <li>✅ Multi-Tenant Support (Optional)</li>
       </ul>
 
       <h2 style={{ marginTop: '2rem' }}>Example API Routes:</h2>
@@ -27,6 +28,13 @@ export default function Home() {
         </li>
         <li>
           <a href="/api/health" style={{ color: '#0070f3' }}>GET /api/health</a> - Health check
+        </li>
+      </ul>
+
+      <h2 style={{ marginTop: '2rem' }}>Admin Pages:</h2>
+      <ul style={{ marginTop: '1rem', marginLeft: '2rem' }}>
+        <li>
+          <a href="/tenants" style={{ color: '#0070f3' }}>Tenant Management</a> - Manage multi-tenant organizations
         </li>
       </ul>
     </main>
