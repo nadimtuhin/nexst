@@ -1,6 +1,5 @@
 import { Injectable } from '../decorators'
 import * as winston from 'winston'
-import * as DailyRotateFile from 'winston-daily-rotate-file'
 import { ConfigService } from '../../config'
 import * as path from 'path'
 
@@ -49,6 +48,9 @@ export class LoggerService {
 
     // File transports (if enabled)
     if (config.fileEnabled) {
+      // Dynamically import DailyRotateFile only when needed (avoids Jest issues)
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const DailyRotateFile = require('winston-daily-rotate-file')
       const logsDir = path.join(process.cwd(), 'logs')
 
       // Error log file

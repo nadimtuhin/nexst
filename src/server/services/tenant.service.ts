@@ -76,7 +76,7 @@ export class TenantService {
   /**
    * Get active tenants
    */
-  async findActiveTenants(): Promise<Tenant[]> {
+  async findActive(): Promise<Tenant[]> {
     this.ensureMultiTenancyEnabled()
     return this.tenantRepository.findActiveTenants()
   }
@@ -84,7 +84,7 @@ export class TenantService {
   /**
    * Get a tenant by ID
    */
-  async findOne(id: number): Promise<Tenant> {
+  async findById(id: number): Promise<Tenant> {
     this.ensureMultiTenancyEnabled()
 
     const tenant = await this.tenantRepository.findById(id)
@@ -99,7 +99,7 @@ export class TenantService {
   /**
    * Get a tenant by ID with user count
    */
-  async findOneWithUserCount(id: number) {
+  async findByIdWithUserCount(id: number) {
     this.ensureMultiTenancyEnabled()
 
     const tenant = await this.tenantRepository.findByIdWithUserCount(id)
@@ -177,7 +177,7 @@ export class TenantService {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    const tenant = await this.findOne(id)
+    const tenant = await this.findById(id)
 
     // Check if slug is being changed and already exists
     if (updateTenantDto.slug && updateTenantDto.slug !== tenant.slug) {
@@ -213,7 +213,7 @@ export class TenantService {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    await this.findOne(id)
+    await this.findById(id)
 
     return this.tenantRepository.suspendTenant(id)
   }
@@ -225,7 +225,7 @@ export class TenantService {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    await this.findOne(id)
+    await this.findById(id)
 
     return this.tenantRepository.activateTenant(id)
   }
@@ -237,7 +237,7 @@ export class TenantService {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    await this.findOne(id)
+    await this.findById(id)
 
     return this.tenantRepository.deactivateTenant(id)
   }
@@ -245,11 +245,11 @@ export class TenantService {
   /**
    * Delete a tenant
    */
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    await this.findOne(id)
+    await this.findById(id)
 
     // Check if tenant has users
     const userCount = await this.tenantRepository.countTenantUsers(id)
@@ -266,11 +266,11 @@ export class TenantService {
   /**
    * Get tenant user count
    */
-  async getTenantUserCount(id: number): Promise<number> {
+  async getUserCount(id: number): Promise<number> {
     this.ensureMultiTenancyEnabled()
 
     // Check if tenant exists
-    await this.findOne(id)
+    await this.findById(id)
 
     return this.tenantRepository.countTenantUsers(id)
   }

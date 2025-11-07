@@ -46,7 +46,7 @@ export class TenantController {
    */
   @Get('/active')
   async getActiveTenants() {
-    const tenants = await this.tenantService.findActiveTenants()
+    const tenants = await this.tenantService.findActive()
     return {
       data: tenants,
       total: tenants.length,
@@ -59,7 +59,7 @@ export class TenantController {
   @Get('/:id')
   async getTenant(@Param('id') id: string) {
     const tenantId = parseInt(id, 10)
-    const tenant = await this.tenantService.findOneWithUserCount(tenantId)
+    const tenant = await this.tenantService.findByIdWithUserCount(tenantId)
     return { data: tenant }
   }
 
@@ -69,7 +69,7 @@ export class TenantController {
   @Get('/:id/user-count')
   async getTenantUserCount(@Param('id') id: string) {
     const tenantId = parseInt(id, 10)
-    const count = await this.tenantService.getTenantUserCount(tenantId)
+    const count = await this.tenantService.getUserCount(tenantId)
     return {
       data: { tenantId, userCount: count },
     }
@@ -166,7 +166,7 @@ export class TenantController {
   @Delete('/:id')
   async deleteTenant(@Param('id') id: string) {
     const tenantId = parseInt(id, 10)
-    await this.tenantService.remove(tenantId)
+    await this.tenantService.delete(tenantId)
     return {
       message: 'Tenant deleted successfully',
     }

@@ -18,10 +18,7 @@ class MockConfigService {
   multiTenant = { enabled: true }
 }
 
-// SKIP: TenantService tests require complex Winston logger setup via PrismaService
-// The service itself works correctly in the application
-// TODO: Add proper test infrastructure for services with logger dependencies
-describe.skip('TenantService', () => {
+describe('TenantService', () => {
   let tenantService: TenantService
   let prismaService: PrismaService
   let configService: MockConfigService
@@ -150,7 +147,7 @@ describe.skip('TenantService', () => {
     })
   })
 
-  describe('findAllWithCounts', () => {
+  describe('findAllWithUserCounts', () => {
     it('should return tenants with user counts', async () => {
       // Create users for tenant1
       await prismaService.user.createMany({
@@ -170,7 +167,7 @@ describe.skip('TenantService', () => {
         ],
       })
 
-      const tenants = await tenantService.findAllWithCounts()
+      const tenants = await tenantService.findAllWithUserCounts()
       const tenant1 = tenants.find((t) => t.id === tenant1Id)
       expect(tenant1?._count.users).toBe(2)
     })
