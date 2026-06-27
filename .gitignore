@@ -46,8 +46,23 @@ logs/
 # Environment files (keep .env.example, .env.development, .env.test)
 .env.production
 .env.staging
+.env.local
+.env.*.local
 
 # Database
 *.db
 *.db-journal
+*.sqlite
+*.sqlite3
 prisma/migrations/*/migration.sql
+
+# OS
+Thumbs.db
+
+# Build artifacts
+dist/
+.turbo/
+
+# Test artifacts
+junit.xml
+test-results/
