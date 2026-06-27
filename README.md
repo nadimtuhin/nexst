@@ -1,19 +1,19 @@
-# 🚀 Nexst - Next.js with NestJS Architecture
+# Nexst - Next.js with NestJS Architecture
 
-A production-ready Next.js boilerplate featuring NestJS-style architecture patterns, bringing enterprise-level backend practices to your Next.js applications.
+A production-ready Next.js boilerplate with NestJS-style architecture patterns, bringing enterprise-level backend practices to Next.js applications.
 
-## ✨ Features
+## Features
 
-- **🎯 Dependency Injection** - Full DI container using TSyringe
-- **🎨 Decorator-based Controllers** - NestJS-style `@Controller()`, `@Get()`, `@Post()`, etc.
-- **✅ DTO Validation** - Automatic request validation using class-validator
-- **🛡️ Type Safety** - Full TypeScript support with strict mode
-- **🔒 Guards & Middleware** - Authentication and authorization system
-- **⚡ Error Handling** - Centralized exception handling with custom exceptions
-- **🧪 Testing Ready** - Jest configuration with example tests
-- **📦 Clean Architecture** - Separation of concerns with services, controllers, and DTOs
+- **Dependency Injection** - Full DI container using TSyringe
+- **Decorator-based Controllers** - NestJS-style `@Controller()`, `@Get()`, `@Post()`, etc.
+- **DTO Validation** - Automatic request validation using class-validator
+- **Type Safety** - Full TypeScript support with strict mode
+- **Guards & Middleware** - Authentication and authorization system
+- **Error Handling** - Centralized exception handling with custom exceptions
+- **Testing Ready** - Jest configuration with example tests
+- **Clean Architecture** - Separation of concerns with services, controllers, and DTOs
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
@@ -22,24 +22,15 @@ A production-ready Next.js boilerplate featuring NestJS-style architecture patte
 - [Testing](#testing)
 - [Best Practices](#best-practices)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
-
-# Run tests
 npm test
-
-# Build for production
 npm run build
-
-# Start production server
 npm start
 ```
 
@@ -109,9 +100,9 @@ import { CreateProductDto } from '@/server/dto/product.dto'
 export const POST = createRouteHandler(ProductController, 'createProduct', CreateProductDto)
 ```
 
-That's it! Your API endpoint is ready at `POST /api/products` with automatic validation.
+Your API endpoint is ready at `POST /api/products` with automatic validation.
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 nexst/
@@ -156,11 +147,11 @@ nexst/
 └── next.config.js
 ```
 
-## 🎓 Core Concepts
+## Core Concepts
 
 ### 1. Dependency Injection
 
-Nexst uses TSyringe for dependency injection, allowing you to easily manage dependencies:
+Nexst uses TSyringe for dependency injection:
 
 ```typescript
 import { Injectable } from '@/server/decorators'
@@ -172,7 +163,6 @@ export class UserService {
 
 @Injectable()
 export class OrderService {
-  // Inject UserService
   constructor(private userService: UserService) {}
 }
 ```
@@ -251,7 +241,7 @@ Available exceptions:
 
 ### 5. Guards
 
-Protect your routes with guards:
+Protect routes with guards:
 
 ```typescript
 import { UseGuards } from '@/server/decorators'
@@ -264,7 +254,7 @@ export class AdminController {
 }
 ```
 
-## 📚 API Examples
+## API Examples
 
 ### Example User API
 
@@ -326,18 +316,13 @@ async getProfile(@Req() request: NextRequest) {
 }
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 
 ```bash
-# Run all tests
 npm test
-
-# Run tests in watch mode
 npm run test:watch
-
-# Run tests with coverage
 npm run test:coverage
 ```
 
@@ -371,7 +356,7 @@ describe('UserService', () => {
 })
 ```
 
-## 📖 Best Practices
+## Best Practices
 
 ### 1. Separation of Concerns
 
@@ -385,10 +370,10 @@ describe('UserService', () => {
 Always use typed exceptions:
 
 ```typescript
-// ❌ Don't
+// Don't
 throw new Error('User not found')
 
-// ✅ Do
+// Do
 throw new NotFoundException('User not found')
 ```
 
@@ -397,13 +382,13 @@ throw new NotFoundException('User not found')
 Always validate incoming data with DTOs:
 
 ```typescript
-// ❌ Don't
+// Don't
 @Post()
 async create(@Body() data: any) {
   return this.service.create(data)
 }
 
-// ✅ Do
+// Do
 @Post()
 async create(@Body() dto: CreateUserDto) {
   return this.service.create(dto)
@@ -415,7 +400,6 @@ async create(@Body() dto: CreateUserDto) {
 Use constructor injection for dependencies:
 
 ```typescript
-// ✅ Do
 @Injectable()
 export class UserService {
   constructor(
@@ -441,11 +425,9 @@ describe('UserService', () => {
 })
 ```
 
-## 🔧 Advanced Usage
+## Advanced Usage
 
 ### Custom Decorators
-
-Create your own decorators:
 
 ```typescript
 export function RequireRole(role: string) {
@@ -462,8 +444,6 @@ async adminRoute() {
 
 ### Request-Scoped Services
 
-Create request-scoped containers:
-
 ```typescript
 import { createRequestContainer } from '@/server/container/container'
 
@@ -472,8 +452,6 @@ const service = requestContainer.resolve(UserService)
 ```
 
 ### Custom Validation
-
-Create custom validation decorators:
 
 ```typescript
 import { registerDecorator, ValidationOptions } from 'class-validator'
@@ -495,21 +473,17 @@ export function IsStrongPassword(validationOptions?: ValidationOptions) {
 }
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Submit a Pull Request.
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License.
+MIT
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Next.js](https://nextjs.org/) - The React framework
 - [NestJS](https://nestjs.com/) - Architecture inspiration
 - [TSyringe](https://github.com/microsoft/tsyringe) - Dependency injection
 - [class-validator](https://github.com/typestack/class-validator) - Validation
-
----
-
-Built with ❤️ by the Nexst team
