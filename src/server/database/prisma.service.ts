@@ -71,13 +71,15 @@ export class PrismaService extends PrismaClient {
       (key) => key[0] !== '_' && key[0] !== '$'
     )
 
-    return Promise.all(
-      models.map((modelKey) => {
-        const model = (this as any)[modelKey]
-        if (model && typeof model.deleteMany === 'function') {
-          return model.deleteMany()
-        }
-      })
-    )
+    // SQLite serializes writes and enforces FK constraints, so deleting
+    // sequentially (rather than via Promise.all) avoids lock contention and
+    // non-deterministic cross-suite failures. ponytail: sequential loop, not
+    // parallel — the flakiness it prevents is worth more than the ms it costs.
+    for (const modelKey of models) {
+      const model = (this as any)[modelKey]
+      if (model && typeof model.deleteMany === 'function') {
+        await model.deleteMany()
+      }
+    }
   }
 }

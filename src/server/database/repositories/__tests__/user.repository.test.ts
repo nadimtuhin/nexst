@@ -39,9 +39,9 @@ describe('UserRepository', () => {
       it('should return all users', async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'user1@example.com', name: 'User 1', age: 25 },
-            { email: 'user2@example.com', name: 'User 2', age: 30 },
-            { email: 'user3@example.com', name: 'User 3', age: 35 },
+            { email: 'user1@example.com', name: 'User 1', age: 25, password: 'hashed-password' },
+            { email: 'user2@example.com', name: 'User 2', age: 30, password: 'hashed-password' },
+            { email: 'user3@example.com', name: 'User 3', age: 35, password: 'hashed-password' },
           ],
         })
 
@@ -57,9 +57,9 @@ describe('UserRepository', () => {
       it('should support ordering', async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'a@example.com', name: 'Alice', age: 30 },
-            { email: 'b@example.com', name: 'Bob', age: 25 },
-            { email: 'c@example.com', name: 'Charlie', age: 35 },
+            { email: 'a@example.com', name: 'Alice', age: 30, password: 'hashed-password' },
+            { email: 'b@example.com', name: 'Bob', age: 25, password: 'hashed-password' },
+            { email: 'c@example.com', name: 'Charlie', age: 35, password: 'hashed-password' },
           ],
         })
 
@@ -76,7 +76,7 @@ describe('UserRepository', () => {
     describe('findById', () => {
       it('should find a user by id', async () => {
         const created = await prismaService.user.create({
-          data: { email: 'find@example.com', name: 'Find User', age: 25 },
+          data: { email: 'find@example.com', name: 'Find User', age: 25, password: 'hashed-password' },
         })
 
         const found = await userRepository.findById(created.id)
@@ -100,6 +100,7 @@ describe('UserRepository', () => {
           email: 'create@example.com',
           name: 'Create User',
           age: 28,
+          password: 'hashed-password',
         })
 
         expect(user).toMatchObject({
@@ -116,6 +117,7 @@ describe('UserRepository', () => {
         const user = await userRepository.create({
           email: 'noage@example.com',
           name: 'No Age User',
+          password: 'hashed-password',
         })
 
         expect(user.age).toBeNull()
@@ -128,6 +130,7 @@ describe('UserRepository', () => {
           email: 'update@example.com',
           name: 'Update User',
           age: 30,
+          password: 'hashed-password',
         })
 
         const updated = await userRepository.update(created.id, {
@@ -156,6 +159,7 @@ describe('UserRepository', () => {
           email: 'delete@example.com',
           name: 'Delete User',
           age: 35,
+          password: 'hashed-password',
         })
 
         await userRepository.delete(created.id)
@@ -173,9 +177,9 @@ describe('UserRepository', () => {
       it('should count all users', async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'count1@example.com', name: 'User 1', age: 25 },
-            { email: 'count2@example.com', name: 'User 2', age: 30 },
-            { email: 'count3@example.com', name: 'User 3', age: 35 },
+            { email: 'count1@example.com', name: 'User 1', age: 25, password: 'hashed-password' },
+            { email: 'count2@example.com', name: 'User 2', age: 30, password: 'hashed-password' },
+            { email: 'count3@example.com', name: 'User 3', age: 35, password: 'hashed-password' },
           ],
         })
 
@@ -195,6 +199,7 @@ describe('UserRepository', () => {
           email: 'exists@example.com',
           name: 'Exists User',
           age: 25,
+          password: 'hashed-password',
         })
 
         const exists = await userRepository.exists({ id: created.id })
@@ -215,6 +220,7 @@ describe('UserRepository', () => {
         email: `user${i + 1}@example.com`,
         name: `User ${i + 1}`,
         age: 20 + i,
+        password: 'hashed-password',
       }))
       await prismaService.user.createMany({ data: users })
     })
@@ -283,6 +289,7 @@ describe('UserRepository', () => {
           email: 'find@example.com',
           name: 'Find User',
           age: 25,
+          password: 'hashed-password',
         })
 
         const found = await userRepository.findByEmail('find@example.com')
@@ -302,6 +309,7 @@ describe('UserRepository', () => {
           email: 'test@example.com',
           name: 'Test User',
           age: 25,
+          password: 'hashed-password',
         })
 
         const found = await userRepository.findByEmail('TEST@example.com')
@@ -315,6 +323,7 @@ describe('UserRepository', () => {
           email: 'exists@example.com',
           name: 'Exists User',
           age: 25,
+          password: 'hashed-password',
         })
 
         const exists = await userRepository.emailExists('exists@example.com')
@@ -331,6 +340,7 @@ describe('UserRepository', () => {
           email: 'exclude@example.com',
           name: 'Exclude User',
           age: 25,
+          password: 'hashed-password',
         })
 
         // Should return false when excluding the only user with this email
@@ -346,12 +356,14 @@ describe('UserRepository', () => {
           email: 'user1@example.com',
           name: 'User 1',
           age: 25,
+          password: 'hashed-password',
         })
 
         await userRepository.create({
           email: 'user2@example.com',
           name: 'User 2',
           age: 30,
+          password: 'hashed-password',
         })
 
         const exists = await userRepository.emailExists(
@@ -366,11 +378,11 @@ describe('UserRepository', () => {
       beforeEach(async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'young@example.com', name: 'Young User', age: 20 },
-            { email: 'mid1@example.com', name: 'Mid User 1', age: 25 },
-            { email: 'mid2@example.com', name: 'Mid User 2', age: 30 },
-            { email: 'old@example.com', name: 'Old User', age: 40 },
-            { email: 'noage@example.com', name: 'No Age User', age: null },
+            { email: 'young@example.com', name: 'Young User', age: 20, password: 'hashed-password' },
+            { email: 'mid1@example.com', name: 'Mid User 1', age: 25, password: 'hashed-password' },
+            { email: 'mid2@example.com', name: 'Mid User 2', age: 30, password: 'hashed-password' },
+            { email: 'old@example.com', name: 'Old User', age: 40, password: 'hashed-password' },
+            { email: 'noage@example.com', name: 'No Age User', age: null, password: 'hashed-password' },
           ],
         })
       })
@@ -403,11 +415,11 @@ describe('UserRepository', () => {
       beforeEach(async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'alice@example.com', name: 'Alice Smith', age: 25 },
-            { email: 'bob@example.com', name: 'Bob Johnson', age: 30 },
-            { email: 'charlie@example.com', name: 'Charlie Brown', age: 35 },
-            { email: 'david@example.com', name: 'David Wilson', age: 40 },
-            { email: 'eve@example.com', name: 'Eve Davis', age: 45 },
+            { email: 'alice@example.com', name: 'Alice Smith', age: 25, password: 'hashed-password' },
+            { email: 'bob@example.com', name: 'Bob Johnson', age: 30, password: 'hashed-password' },
+            { email: 'charlie@example.com', name: 'Charlie Brown', age: 35, password: 'hashed-password' },
+            { email: 'david@example.com', name: 'David Wilson', age: 40, password: 'hashed-password' },
+            { email: 'eve@example.com', name: 'Eve Davis', age: 45, password: 'hashed-password' },
           ],
         })
       })
@@ -476,9 +488,9 @@ describe('UserRepository', () => {
     describe('createMany', () => {
       it('should create multiple users', async () => {
         const count = await userRepository.createMany([
-          { email: 'bulk1@example.com', name: 'Bulk User 1', age: 25 },
-          { email: 'bulk2@example.com', name: 'Bulk User 2', age: 30 },
-          { email: 'bulk3@example.com', name: 'Bulk User 3', age: 35 },
+          { email: 'bulk1@example.com', name: 'Bulk User 1', age: 25, password: 'hashed-password' },
+          { email: 'bulk2@example.com', name: 'Bulk User 2', age: 30, password: 'hashed-password' },
+          { email: 'bulk3@example.com', name: 'Bulk User 3', age: 35, password: 'hashed-password' },
         ])
 
         expect(count).toBe(3)
@@ -492,9 +504,9 @@ describe('UserRepository', () => {
       it('should delete multiple users by condition', async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'delete1@example.com', name: 'Delete User 1', age: 25 },
-            { email: 'delete2@example.com', name: 'Delete User 2', age: 30 },
-            { email: 'keep@example.com', name: 'Keep User', age: 40 },
+            { email: 'delete1@example.com', name: 'Delete User 1', age: 25, password: 'hashed-password' },
+            { email: 'delete2@example.com', name: 'Delete User 2', age: 30, password: 'hashed-password' },
+            { email: 'keep@example.com', name: 'Keep User', age: 40, password: 'hashed-password' },
           ],
         })
 
@@ -514,9 +526,9 @@ describe('UserRepository', () => {
       it('should update multiple users', async () => {
         await prismaService.user.createMany({
           data: [
-            { email: 'update1@example.com', name: 'Update User 1', age: 25 },
-            { email: 'update2@example.com', name: 'Update User 2', age: 30 },
-            { email: 'skip@example.com', name: 'Skip User', age: 40 },
+            { email: 'update1@example.com', name: 'Update User 1', age: 25, password: 'hashed-password' },
+            { email: 'update2@example.com', name: 'Update User 2', age: 30, password: 'hashed-password' },
+            { email: 'skip@example.com', name: 'Skip User', age: 40, password: 'hashed-password' },
           ],
         })
 
@@ -539,7 +551,7 @@ describe('UserRepository', () => {
     it('should create user if not exists', async () => {
       const user = await userRepository.upsert(
         { email: 'upsert@example.com' },
-        { email: 'upsert@example.com', name: 'Upsert User', age: 25 },
+        { email: 'upsert@example.com', name: 'Upsert User', age: 25, password: 'hashed-password' },
         { age: 30 }
       )
 
@@ -555,11 +567,12 @@ describe('UserRepository', () => {
         email: 'upsert@example.com',
         name: 'Original User',
         age: 25,
+        password: 'hashed-password',
       })
 
       const updated = await userRepository.upsert(
         { email: 'upsert@example.com' },
-        { email: 'upsert@example.com', name: 'New User', age: 99 },
+        { email: 'upsert@example.com', name: 'New User', age: 99, password: 'hashed-password' },
         { age: 30 }
       )
 

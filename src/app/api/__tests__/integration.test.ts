@@ -59,6 +59,7 @@ describe('API Integration Tests', () => {
             name: 'John Doe',
             email: 'john.integration@example.com',
             age: 30,
+            password: 'Password123!',
           }),
         })
 
@@ -204,6 +205,7 @@ describe('API Integration Tests', () => {
           body: JSON.stringify({
             name: 'To Be Deleted',
             email: 'delete.integration@example.com',
+            password: 'Password123!',
           }),
         })
 
@@ -250,6 +252,7 @@ describe('API Integration Tests', () => {
             name: 'Lifecycle Test',
             email: 'lifecycle.integration@example.com',
             age: 30,
+            password: 'Password123!',
           }),
         })
 

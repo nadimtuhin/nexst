@@ -80,11 +80,12 @@ describe('UserController', () => {
 
   describe('createUser', () => {
     it('should create user and return with success message', async () => {
-      const dto: CreateUserDto = {
+      const dto = {
         name: 'Test User',
         email: 'test@example.com',
         age: 30,
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const result = await controller.createUser(dto)
 
@@ -96,10 +97,11 @@ describe('UserController', () => {
     })
 
     it('should create user without optional age', async () => {
-      const dto: CreateUserDto = {
+      const dto = {
         name: 'Test User 2',
         email: 'test2@example.com',
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const result = await controller.createUser(dto)
 
@@ -164,10 +166,11 @@ describe('UserController', () => {
   describe('deleteUser', () => {
     it('should delete user and return success message', async () => {
       // First create a user to delete
-      const createDto: CreateUserDto = {
+      const createDto = {
         name: 'To Delete',
         email: 'delete@example.com',
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
       const created = await service.create(createDto)
 
       const result = await controller.deleteUser(created.id.toString())
@@ -177,14 +180,16 @@ describe('UserController', () => {
     })
 
     it('should allow deleting multiple users sequentially', async () => {
-      const createDto1: CreateUserDto = {
+      const createDto1 = {
         name: 'To Delete 2',
         email: 'delete2@example.com',
-      }
-      const createDto2: CreateUserDto = {
+        password: 'hashed-password',
+      } as CreateUserDto
+      const createDto2 = {
         name: 'To Delete 3',
         email: 'delete3@example.com',
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const created1 = await service.create(createDto1)
       const created2 = await service.create(createDto2)
