@@ -186,9 +186,9 @@ export class TenantRepository extends BaseRepository<Tenant> {
           select: { users: true },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      // id tiebreaker keeps ordering stable when rows share a createdAt
+      // timestamp (SQLite has millisecond resolution).
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     })
   }
 }

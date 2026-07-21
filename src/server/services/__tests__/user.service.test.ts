@@ -42,6 +42,7 @@ describe('UserService', () => {
         email: 'john@example.com',
         name: 'John Doe',
         age: 30,
+        password: 'hashed-password',
       },
     })
     johnDoeId = johnDoe.id
@@ -51,6 +52,7 @@ describe('UserService', () => {
         email: 'jane@example.com',
         name: 'Jane Smith',
         age: 25,
+        password: 'hashed-password',
       },
     })
     janeSmithId = janeSmith.id
@@ -97,16 +99,19 @@ describe('UserService', () => {
         name: 'User 3',
         email: 'user3@example.com',
         age: 20,
+        password: 'hashed-password',
       })
       await userService.create({
         name: 'User 4',
         email: 'user4@example.com',
         age: 22,
+        password: 'hashed-password',
       })
       await userService.create({
         name: 'User 5',
         email: 'user5@example.com',
         age: 24,
+        password: 'hashed-password',
       })
 
       const page1 = await userService.findAll({ page: '1', limit: '2' })
@@ -125,11 +130,13 @@ describe('UserService', () => {
         name: 'John Smith',
         email: 'johnsmith@example.com',
         age: 28,
+        password: 'hashed-password',
       })
       await userService.create({
         name: 'Johnny Appleseed',
         email: 'johnny@example.com',
         age: 32,
+        password: 'hashed-password',
       })
 
       const users = await userService.findAll({
@@ -174,7 +181,8 @@ describe('UserService', () => {
         name: 'New User',
         email: 'newuser@example.com',
         age: 28,
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const user = await userService.create(createUserDto)
       expect(user.name).toBe('New User')
@@ -186,10 +194,11 @@ describe('UserService', () => {
     })
 
     it('should create a user without age', async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserDto = {
         name: 'No Age User',
         email: 'noage@example.com',
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const user = await userService.create(createUserDto)
       expect(user.name).toBe('No Age User')
@@ -212,11 +221,12 @@ describe('UserService', () => {
     })
 
     it('should persist user to database', async () => {
-      const createUserDto: CreateUserDto = {
+      const createUserDto = {
         name: 'Persist User',
         email: 'persist@example.com',
         age: 35,
-      }
+        password: 'hashed-password',
+      } as CreateUserDto
 
       const created = await userService.create(createUserDto)
 
@@ -343,6 +353,7 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         age: 25,
+        password: 'hashed-password',
       })
 
       // Update the user
@@ -368,6 +379,7 @@ describe('UserService', () => {
           name: `Concurrent User ${i}`,
           email: `concurrent${i}@example.com`,
           age: 20 + i,
+          password: 'hashed-password',
         })
       )
 
