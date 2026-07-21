@@ -2,17 +2,31 @@ import 'reflect-metadata'
 import { container } from 'tsyringe'
 import { UserController } from '../user.controller'
 import { UserService } from '../../services/user.service'
+import { PrismaService } from '../../database/prisma.service'
 import { CreateUserDto, UpdateUserDto } from '../../dto/user.dto'
 
 describe('UserController', () => {
   let controller: UserController
   let service: UserService
+  let prisma: PrismaService
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Clear and setup DI container
     container.clearInstances()
+    prisma = container.resolve(PrismaService)
     service = container.resolve(UserService)
     controller = container.resolve(UserController)
+
+    // Clean before seeding to prevent ConflictException on repeated runs
+    await prisma.cleanDatabase()
+
+    // Seed test data
+    await service.create({ name: 'John Doe', email: 'john@example.com', password: 'password123' })
+    await service.create({ name: 'Jane Doe', email: 'jane@example.com', password: 'password123' })
+  })
+
+  afterEach(async () => {
+    await prisma.cleanDatabase()
   })
 
   describe('getUsers', () => {
@@ -105,13 +119,14 @@ describe('UserController', () => {
 
       const result = await controller.createUser(dto)
 
-      expect(result.data.age).toBeUndefined()
+      expect(result.data.age).toBeNull()
     })
 
     it('should throw error for duplicate email', async () => {
       const dto: CreateUserDto = {
         name: 'John Doe',
         email: 'john@example.com', // Email from default users
+        password: 'password123',
         age: 30,
       }
 

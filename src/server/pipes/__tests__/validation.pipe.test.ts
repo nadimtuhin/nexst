@@ -10,6 +10,7 @@ describe('ValidationPipe', () => {
         name: 'John Doe',
         email: 'john@example.com',
         age: 30,
+        password: 'password123',
       }
 
       const result = await ValidationPipe.transform(CreateUserDto, validData)

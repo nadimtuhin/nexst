@@ -96,5 +96,12 @@ export class PrismaService extends PrismaClient {
       }
       pending = blocked
     }
+
+    // Reset SQLite autoincrement counters so IDs restart at 1 per test
+    try {
+      await this.$executeRawUnsafe(`DELETE FROM sqlite_sequence`)
+    } catch {
+      // sqlite_sequence only exists if AUTOINCREMENT was used; ignore otherwise
+    }
   }
 }

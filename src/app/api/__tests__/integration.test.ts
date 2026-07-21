@@ -15,6 +15,11 @@ describe('API Integration Tests', () => {
     container.clearInstances()
   })
 
+  afterEach(async () => {
+    const prisma = container.resolve(require('../../../server/database/prisma.service').PrismaService)
+    await prisma.cleanDatabase()
+  })
+
   describe('Health Endpoint', () => {
     describe('GET /api/health', () => {
       it('should return health status', async () => {
