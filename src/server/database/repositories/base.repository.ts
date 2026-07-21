@@ -1,5 +1,14 @@
 import { PrismaService } from '../prisma.service'
 
+/**
+ * Transaction client: PrismaClient scoped to a $transaction callback.
+ * Matches the type Prisma generates — operations share one atomic round-trip.
+ */
+export type TransactionClient = Omit<
+  PrismaService,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends' | 'onModuleInit' | 'onModuleDestroy' | 'cleanDatabase'
+>
+
 export interface FindOptions {
   skip?: number
   take?: number
@@ -27,7 +36,22 @@ export interface PaginationResult<T> {
 export abstract class BaseRepository<T> {
   protected abstract modelName: string
 
-  constructor(protected prisma: PrismaService) {}
+  constructor(protected prisma: PrismaService | TransactionClient) {}
+
+  /**
+   * Return a copy of this repository bound to a transaction client.
+   * Prisma's $transaction callback passes a tx that shares the same model
+   * delegates — swapping prisma here is sufficient to enroll all operations
+   * in the transaction.
+   */
+  withTransaction(tx: TransactionClient): this {
+    // Object.create preserves the subclass prototype (UserRepository, etc.)
+    // so instanceof checks and subclass methods work on the returned object.
+    const copy = Object.create(Object.getPrototypeOf(this))
+    Object.assign(copy, this)
+    copy.prisma = tx
+    return copy
+  }
 
   /**
    * Get Prisma model delegate
