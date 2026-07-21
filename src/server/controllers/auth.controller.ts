@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Controller, Post, Body, Get, HttpCode } from '../decorators'
+import { Controller, Post, Body, Get, HttpCode, Req } from '../decorators'
 import { AuthService } from '../auth/auth.service'
 import {
   RegisterDto,
@@ -80,7 +80,7 @@ export class AuthController {
   @Post('/change-password')
   @HttpCode(200)
   async changePassword(
-    request: NextRequest,
+    @Req() request: NextRequest,
     @Body() changePasswordDto: ChangePasswordDto
   ) {
     // Extract user from request (set by AuthGuard)
@@ -101,7 +101,7 @@ export class AuthController {
    * Requires authentication
    */
   @Get('/me')
-  async me(request: NextRequest) {
+  async me(@Req() request: NextRequest) {
     // Extract user from request (set by AuthGuard)
     const user = (request as any).user
     if (!user) {

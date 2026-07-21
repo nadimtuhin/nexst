@@ -71,13 +71,30 @@ export class PrismaService extends PrismaClient {
       (key) => key[0] !== '_' && key[0] !== '$'
     )
 
-    return Promise.all(
-      models.map((modelKey) => {
-        const model = (this as any)[modelKey]
-        if (model && typeof model.deleteMany === 'function') {
-          return model.deleteMany()
-        }
-      })
+    // Delete sequentially rather than in parallel: a parallel Promise.all can
+    // delete a parent row (e.g. User) while a child still references it (e.g.
+    // RefreshToken), which throws a foreign-key error, aborts the clean, and
+    // leaks rows into the next test. We retry the tables blocked by a FK until
+    // their children are gone — order-independent, so no hand-maintained list.
+    let pending = models.filter(
+      (key) => typeof (this as any)[key]?.deleteMany === 'function'
     )
+
+    while (pending.length > 0) {
+      const blocked: typeof pending = []
+      for (const key of pending) {
+        try {
+          await (this as any)[key].deleteMany()
+        } catch {
+          blocked.push(key)
+        }
+      }
+      // No table could be cleared this pass → a real error, not FK ordering.
+      if (blocked.length === pending.length) {
+        // Surface the underlying error instead of looping forever.
+        await (this as any)[blocked[0]].deleteMany()
+      }
+      pending = blocked
+    }
   }
 }

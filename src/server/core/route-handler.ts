@@ -4,6 +4,7 @@ import { getParamMetadata } from '../decorators/param.decorator'
 import { ExceptionFilter } from '../filters/exception.filter'
 import { ValidationPipe } from '../pipes/validation.pipe'
 import { getGuards } from '../decorators/guards.decorator'
+import { HTTP_CODE_METADATA } from '../decorators/http-methods.decorator'
 
 interface RouteContext {
   params?: Record<string, string>
@@ -15,7 +16,8 @@ interface RouteContext {
 export function createRouteHandler(
   controllerClass: new (...args: any[]) => any,
   methodName: string | symbol,
-  dtoClass?: new () => any
+  dtoClass?: new () => any,
+  extraGuards: Array<new (...args: any[]) => any> = []
 ) {
   return async (request: NextRequest, context?: RouteContext) => {
     try {
@@ -25,7 +27,7 @@ export function createRouteHandler(
       // Get method guards
       const methodGuards = getGuards(controller, methodName)
       const classGuards = getGuards(controllerClass)
-      const allGuards = [...classGuards, ...methodGuards]
+      const allGuards = [...classGuards, ...methodGuards, ...extraGuards]
 
       // Execute guards
       for (const GuardClass of allGuards) {
@@ -118,11 +120,43 @@ export function createRouteHandler(
         return result
       }
 
-      // Default JSON response
-      return NextResponse.json(result)
+      // Default JSON response, honoring an @HttpCode() override if present.
+      const statusCode = Reflect.getMetadata(
+        HTTP_CODE_METADATA,
+        controller,
+        methodName
+      )
+      return NextResponse.json(result, statusCode ? { status: statusCode } : undefined)
     } catch (error) {
       // Handle exceptions with global exception filter
       return ExceptionFilter.catch(error)
     }
   }
+}
+
+interface HandleRouteOptions {
+  request: NextRequest
+  params?: Record<string, string>
+  guards?: Array<new (...args: any[]) => any>
+  dto?: new () => any
+}
+
+/**
+ * Executes a controller method for a single request. Unlike createRouteHandler
+ * (which returns a reusable handler and reads guards from decorators), this runs
+ * the method inline and takes guards explicitly — the shape the /api/auth routes
+ * use, e.g. handleRoute(AuthController, 'me', { request, guards: [AuthGuard] }).
+ */
+export function handleRoute(
+  controllerClass: new (...args: any[]) => any,
+  methodName: string | symbol,
+  options: HandleRouteOptions
+) {
+  const handler = createRouteHandler(
+    controllerClass,
+    methodName,
+    options.dto,
+    options.guards ?? []
+  )
+  return handler(options.request, { params: options.params })
 }

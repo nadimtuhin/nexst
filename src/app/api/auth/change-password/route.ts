@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { handleRoute } from '@/server/core/route-handler'
 import { AuthController } from '@/server/controllers/auth.controller'
 import { AuthGuard } from '@/server/guards/auth.guard'
+import { ChangePasswordDto } from '@/server/dto/auth.dto'
 
 /**
  * POST /api/auth/change-password
@@ -12,5 +13,6 @@ export async function POST(request: NextRequest) {
   return handleRoute(AuthController, 'changePassword', {
     request,
     guards: [AuthGuard],
+    dto: ChangePasswordDto,
   })
 }

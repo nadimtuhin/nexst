@@ -50,3 +50,22 @@ export const Delete = createMethodDecorator('DELETE')
  * @param path - The route path (default: '')
  */
 export const Patch = createMethodDecorator('PATCH')
+
+export const HTTP_CODE_METADATA = 'http:statusCode'
+
+/**
+ * Sets the HTTP status code for a successful response from a handler method.
+ * The status is stored as metadata; createRouteHandler reads it when building
+ * the JSON response. Without it, successful responses default to 200.
+ * @param statusCode - The success status code (e.g. 200, 201, 204)
+ */
+export function HttpCode(statusCode: number) {
+  return function (
+    target: any,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor
+  ) {
+    Reflect.defineMetadata(HTTP_CODE_METADATA, statusCode, target, propertyKey)
+    return descriptor
+  }
+}

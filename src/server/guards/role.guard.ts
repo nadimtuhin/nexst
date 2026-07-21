@@ -74,7 +74,7 @@ export class RoleGuard {
    */
   static hasRole(request: NextRequest, role: UserRole): boolean {
     const user = (request as any).user
-    return user && user.role === role
+    return !!user && user.role === role
   }
 
   /**
@@ -85,7 +85,7 @@ export class RoleGuard {
    */
   static hasAnyRole(request: NextRequest, roles: UserRole[]): boolean {
     const user = (request as any).user
-    return user && roles.includes(user.role)
+    return !!user && roles.includes(user.role)
   }
 
   /**

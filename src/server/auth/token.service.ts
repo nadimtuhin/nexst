@@ -1,5 +1,6 @@
 // @ts-nocheck
 import * as jwt from 'jsonwebtoken'
+import { randomUUID } from 'crypto'
 import { Injectable } from '../decorators'
 import { ConfigService } from '../../config/config.service'
 import { LoggerService } from '../logger/logger.service'
@@ -73,7 +74,9 @@ export class TokenService {
    */
   generateRefreshToken(userId: number, tenantId?: number): string {
     try {
-      const payload: any = { sub: userId, type: 'refresh' }
+      // jti makes every refresh token unique so rotation always produces a
+      // distinct token, even when two are issued within the same second.
+      const payload: any = { sub: userId, type: 'refresh', jti: randomUUID() }
       if (tenantId !== undefined) {
         payload.tenantId = tenantId
       }
