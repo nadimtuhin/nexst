@@ -55,6 +55,21 @@ describe('API Integration Tests', () => {
   })
 
   describe('Users Endpoints', () => {
+    beforeEach(async () => {
+      // Seed a baseline user so id=1 tests resolve without hardcoded setup per-test
+      const seedRequest = new NextRequest('http://localhost/api/users', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          name: 'John Seed',
+          email: 'john.seed@example.com',
+          age: 30,
+          password: 'Password123!',
+        }),
+      })
+      await usersPOST(seedRequest)
+    })
+
     describe('POST /api/users', () => {
       it('should create a new user', async () => {
         const request = new NextRequest('http://localhost/api/users', {
@@ -118,7 +133,7 @@ describe('API Integration Tests', () => {
         const result = await response.json()
 
         expect(response.status).toBe(200)
-        expect(result.data).toBeInstanceOf(Array)
+        expect(Array.isArray(result.data)).toBe(true)
         expect(result).toHaveProperty('total')
       })
 
@@ -129,7 +144,7 @@ describe('API Integration Tests', () => {
         const result = await response.json()
 
         expect(response.status).toBe(200)
-        expect(result.data).toBeInstanceOf(Array)
+        expect(Array.isArray(result.data)).toBe(true)
       })
     })
 
