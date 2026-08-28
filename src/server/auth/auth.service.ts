@@ -296,31 +296,32 @@ export class AuthService {
   }
 
   /**
-   * Parse expiration time string (e.g., "7d", "1h") to milliseconds
-   * @param expiresIn - Expiration time string
+   * Parse expiration time string (e.g., "7d", "7 days", "1h", "2 hours") to milliseconds
+   * @param expiresIn - Expiration time string or milliseconds
    * @returns Milliseconds
    */
-  private parseExpirationTime(expiresIn: string): number {
-    const match = expiresIn.match(/^(\d+)([dhms])$/)
+  private parseExpirationTime(expiresIn: string | number): number {
+    if (typeof expiresIn === 'number') return expiresIn
+    const cleaned = expiresIn.trim()
+    // Numeric string (milliseconds)
+    if (/^\d+$/.test(cleaned)) return parseInt(cleaned, 10)
+
+    const match = cleaned.match(/^(\d+)\s*(d(?:ays?)?|h(?:ours?)?|m(?:in(?:ute)?s?)?|s(?:ec(?:ond)?s?)?|w(?:eeks?)?|y(?:ears?)?)$/i)
     if (!match) {
-      throw new Error('Invalid expiration time format')
+      throw new Error(`Invalid expiration time format: ${expiresIn}`)
     }
 
     const value = parseInt(match[1], 10)
-    const unit = match[2]
+    const unit = match[2].toLowerCase()
 
-    switch (unit) {
-      case 'd':
-        return value * 24 * 60 * 60 * 1000
-      case 'h':
-        return value * 60 * 60 * 1000
-      case 'm':
-        return value * 60 * 1000
-      case 's':
-        return value * 1000
-      default:
-        throw new Error('Invalid time unit')
-    }
+    if (unit.startsWith('d')) return value * 24 * 60 * 60 * 1000
+    if (unit.startsWith('h')) return value * 60 * 60 * 1000
+    if (unit.startsWith('m')) return value * 60 * 1000
+    if (unit.startsWith('s')) return value * 1000
+    if (unit.startsWith('w')) return value * 7 * 24 * 60 * 60 * 1000
+    if (unit.startsWith('y')) return value * 365 * 24 * 60 * 60 * 1000
+
+    throw new Error(`Unsupported time unit in expiration: ${expiresIn}`)
   }
 
   /**
