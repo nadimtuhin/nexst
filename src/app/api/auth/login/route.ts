@@ -1,11 +1,7 @@
-import { NextRequest } from 'next/server'
-import { handleRoute } from '@/server/core/route-handler'
+import 'reflect-metadata'
 import { AuthController } from '@/server/controllers/auth.controller'
+import { createRouteHandler } from '@/server/core/route-handler'
+import { LoginDto } from '@/server/dto/auth.dto'
 
-/**
- * POST /api/auth/login
- * User login
- */
-export async function POST(request: NextRequest) {
-  return handleRoute(AuthController, 'login', { request })
-}
+// POST /api/auth/login - log in a user
+export const POST = createRouteHandler(AuthController, 'login', LoginDto)

@@ -70,7 +70,7 @@ export interface AwsConfig {
  */
 @Injectable()
 export class ConfigService {
-  private config: Record<string, any>
+  private config!: Record<string, any>
 
   constructor() {
     this.loadConfig()

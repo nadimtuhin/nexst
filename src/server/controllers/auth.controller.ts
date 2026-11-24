@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Controller, Post, Body, Get, HttpCode } from '../decorators'
+import { Controller, Post, Body, Get, Req, UseGuards } from '../decorators'
 import { AuthService } from '../auth/auth.service'
+import { AuthGuard } from '../guards/auth.guard'
 import {
   RegisterDto,
   LoginDto,
@@ -34,7 +35,6 @@ export class AuthController {
    * POST /api/auth/login
    */
   @Post('/login')
-  @HttpCode(200)
   async login(@Body() loginDto: LoginDto) {
     const result = await this.authService.login(loginDto)
     return {
@@ -48,7 +48,6 @@ export class AuthController {
    * POST /api/auth/refresh
    */
   @Post('/refresh')
-  @HttpCode(200)
   async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
     const result = await this.authService.refreshToken(
       refreshTokenDto.refreshToken
@@ -64,7 +63,6 @@ export class AuthController {
    * POST /api/auth/logout
    */
   @Post('/logout')
-  @HttpCode(200)
   async logout(@Body() refreshTokenDto: RefreshTokenDto) {
     await this.authService.logout(refreshTokenDto.refreshToken)
     return {
@@ -78,9 +76,9 @@ export class AuthController {
    * Requires authentication
    */
   @Post('/change-password')
-  @HttpCode(200)
+  @UseGuards(AuthGuard)
   async changePassword(
-    request: NextRequest,
+    @Req() request: NextRequest,
     @Body() changePasswordDto: ChangePasswordDto
   ) {
     // Extract user from request (set by AuthGuard)
@@ -101,7 +99,8 @@ export class AuthController {
    * Requires authentication
    */
   @Get('/me')
-  async me(request: NextRequest) {
+  @UseGuards(AuthGuard)
+  async me(@Req() request: NextRequest) {
     // Extract user from request (set by AuthGuard)
     const user = (request as any).user
     if (!user) {

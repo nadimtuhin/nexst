@@ -9,8 +9,15 @@ export class ExceptionFilter {
   static catch(error: unknown): NextResponse {
     console.error('Exception caught:', error)
 
-    // Handle HttpException
+    // Handle HttpException. Server errors (>= 500) can wrap internals, so
+    // their message and errors are only logged above, never returned.
     if (error instanceof HttpException) {
+      if (error.statusCode >= 500) {
+        return NextResponse.json(
+          { statusCode: error.statusCode, message: 'Internal Server Error' },
+          { status: error.statusCode }
+        )
+      }
       return NextResponse.json(error.toJSON(), { status: error.statusCode })
     }
 
@@ -26,18 +33,9 @@ export class ExceptionFilter {
       )
     }
 
-    // Handle generic errors
-    if (error instanceof Error) {
-      return NextResponse.json(
-        {
-          statusCode: 500,
-          message: error.message || 'Internal Server Error',
-        },
-        { status: 500 }
-      )
-    }
-
-    // Unknown error
+    // Any other error is unexpected. Its message can contain internals
+    // (database errors, file paths, secrets), so it is logged above and a
+    // generic message is returned to the client.
     return NextResponse.json(
       {
         statusCode: 500,

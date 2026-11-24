@@ -1,4 +1,5 @@
 import * as jwt from 'jsonwebtoken'
+import { randomUUID } from 'crypto'
 import { Injectable } from '../decorators'
 import { ConfigService } from '../../config/config.service'
 import { LoggerService } from '../logger/logger.service'
@@ -34,6 +35,16 @@ export class TokenService {
   }
 
   /**
+   * Secret used for refresh tokens. JWT_REFRESH_SECRET is optional, so fall
+   * back to JWT_SECRET when it is not configured.
+   */
+  private get refreshSecret(): string {
+    return (
+      this.config.security.jwtRefreshSecret || this.config.security.jwtSecret
+    )
+  }
+
+  /**
    * Generate an access token
    * @param payload - Token payload
    * @returns JWT access token
@@ -41,7 +52,7 @@ export class TokenService {
   generateAccessToken(payload: Omit<TokenPayload, 'iat' | 'exp'>): string {
     try {
       const token = jwt.sign(payload, this.config.security.jwtSecret, {
-        expiresIn: this.config.security.jwtExpiresIn,
+        expiresIn: this.config.security.jwtExpiresIn as jwt.SignOptions['expiresIn'],
       })
 
       this.logger.debug(`Access token generated for user: ${payload.sub}`)
@@ -64,9 +75,12 @@ export class TokenService {
     try {
       const token = jwt.sign(
         { sub: userId, type: 'refresh' },
-        this.config.security.jwtRefreshSecret,
+        this.refreshSecret,
         {
-          expiresIn: this.config.security.jwtRefreshExpiresIn,
+          expiresIn: this.config
+            .security.jwtRefreshExpiresIn as jwt.SignOptions['expiresIn'],
+          // Unique ID so tokens issued in the same second never collide
+          jwtid: randomUUID(),
         }
       )
 
@@ -104,12 +118,20 @@ export class TokenService {
       const payload = jwt.verify(
         token,
         this.config.security.jwtSecret
-      ) as TokenPayload
+      ) as unknown as TokenPayload & { type?: string }
+
+      // Refresh tokens must never be usable as access tokens (relevant when
+      // both token types are signed with the same secret)
+      if (payload.type === 'refresh') {
+        throw new UnauthorizedException('Invalid token type')
+      }
 
       this.logger.debug(`Access token verified for user: ${payload.sub}`)
       return payload
     } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
+      if (error instanceof UnauthorizedException) {
+        throw error
+      } else if (error instanceof jwt.TokenExpiredError) {
         this.logger.warn('Access token expired')
         throw new UnauthorizedException('Token expired')
       } else if (error instanceof jwt.JsonWebTokenError) {
@@ -132,8 +154,8 @@ export class TokenService {
     try {
       const payload = jwt.verify(
         token,
-        this.config.security.jwtRefreshSecret
-      ) as { sub: number; type: string }
+        this.refreshSecret
+      ) as unknown as { sub: number; type: string }
 
       if (payload.type !== 'refresh') {
         throw new UnauthorizedException('Invalid token type')

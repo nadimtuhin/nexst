@@ -1,16 +1,7 @@
-import { NextRequest } from 'next/server'
-import { handleRoute } from '@/server/core/route-handler'
+import 'reflect-metadata'
 import { AuthController } from '@/server/controllers/auth.controller'
-import { AuthGuard } from '@/server/guards/auth.guard'
+import { createRouteHandler } from '@/server/core/route-handler'
 
-/**
- * GET /api/auth/me
- * Get current authenticated user
- * Requires authentication
- */
-export async function GET(request: NextRequest) {
-  return handleRoute(AuthController, 'me', {
-    request,
-    guards: [AuthGuard],
-  })
-}
+// GET /api/auth/me - current authenticated user (requires a bearer token;
+// AuthGuard is applied on the controller method)
+export const GET = createRouteHandler(AuthController, 'me')
