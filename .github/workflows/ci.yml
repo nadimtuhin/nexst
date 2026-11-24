@@ -38,6 +38,9 @@ jobs:
         # ponytail: pre-existing TS errors in source; remove continue-on-error once fixed
         continue-on-error: true
 
+      - name: Build
+        run: npm run build
+
       - name: Run tests
         run: npm test
         # ponytail: pre-existing test failures (JWT secret length, missing exports); remove continue-on-error once fixed

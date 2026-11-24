@@ -1,16 +1,12 @@
-import { NextRequest } from 'next/server'
-import { handleRoute } from '@/server/core/route-handler'
+import 'reflect-metadata'
 import { AuthController } from '@/server/controllers/auth.controller'
-import { AuthGuard } from '@/server/guards/auth.guard'
+import { createRouteHandler } from '@/server/core/route-handler'
+import { ChangePasswordDto } from '@/server/dto/auth.dto'
 
-/**
- * POST /api/auth/change-password
- * Change user password
- * Requires authentication
- */
-export async function POST(request: NextRequest) {
-  return handleRoute(AuthController, 'changePassword', {
-    request,
-    guards: [AuthGuard],
-  })
-}
+// POST /api/auth/change-password - change the password (requires a bearer token;
+// AuthGuard is applied on the controller method)
+export const POST = createRouteHandler(
+  AuthController,
+  'changePassword',
+  ChangePasswordDto
+)

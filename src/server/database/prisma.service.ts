@@ -24,19 +24,19 @@ export class PrismaService extends PrismaClient {
 
     // Log database queries in development
     if (process.env.NODE_ENV === 'development') {
-      this.$on('query' as any, (e: any) => {
+      this.$on('query' as never, (e: any) => {
         this.logger.debug(`Query: ${e.query}`)
         this.logger.debug(`Duration: ${e.duration}ms`)
       })
     }
 
     // Log errors
-    this.$on('error' as any, (e: any) => {
+    this.$on('error' as never, (e: any) => {
       this.logger.error(`Prisma Error: ${e.message}`, e.stack)
     })
 
     // Log warnings
-    this.$on('warn' as any, (e: any) => {
+    this.$on('warn' as never, (e: any) => {
       this.logger.warn(`Prisma Warning: ${e.message}`)
     })
 
@@ -68,7 +68,8 @@ export class PrismaService extends PrismaClient {
     }
 
     const models = Reflect.ownKeys(this).filter(
-      (key) => key[0] !== '_' && key[0] !== '$'
+      (key) =>
+        typeof key === 'string' && key[0] !== '_' && key[0] !== '$'
     )
 
     return Promise.all(
