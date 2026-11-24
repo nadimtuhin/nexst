@@ -80,6 +80,36 @@ describe('ExceptionFilter', () => {
       expect(response.status).toBe(500)
     })
 
+    it('should not expose InternalServerErrorException details to the client', async () => {
+      const detail = 'connect ECONNREFUSED 10.0.3.7:5432 (user=app_admin)'
+      const error = new InternalServerErrorException(detail)
+      const consoleErrorSpy = jest.spyOn(console, 'error')
+      const response = ExceptionFilter.catch(error)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(body).toEqual({ statusCode: 500, message: 'Internal Server Error' })
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Exception caught:', error)
+    })
+
+    it('should not expose details or errors of any HttpException with status >= 500', async () => {
+      const error = new HttpException('upstream db host db-primary.internal timed out', 503, {
+        stack: 'at Pool.connect (/srv/app/node_modules/pg/lib/pool.js:45)',
+      })
+      const response = ExceptionFilter.catch(error)
+      const body = await response.json()
+
+      expect(response.status).toBe(503)
+      expect(body).toEqual({ statusCode: 503, message: 'Internal Server Error' })
+    })
+
+    it('should still return the message for HttpException below 500', async () => {
+      const response = ExceptionFilter.catch(new NotFoundException('User not found'))
+      const body = await response.json()
+
+      expect(body).toEqual({ statusCode: 404, message: 'User not found' })
+    })
+
     it('should handle HttpException with custom status code', () => {
       const error = new HttpException('Custom error', 418)
       const response = ExceptionFilter.catch(error)
