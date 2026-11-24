@@ -1,6 +1,6 @@
 import { Injectable } from '../decorators'
 import * as winston from 'winston'
-import * as DailyRotateFile from 'winston-daily-rotate-file'
+import DailyRotateFile from 'winston-daily-rotate-file'
 import { ConfigService } from '../../config'
 import * as path from 'path'
 
