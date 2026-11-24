@@ -116,6 +116,13 @@ describe('TokenService', () => {
   })
 
   describe('generateRefreshToken', () => {
+    it('should generate distinct tokens for the same user within the same second', () => {
+      const first = tokenService.generateRefreshToken(42)
+      const second = tokenService.generateRefreshToken(42)
+
+      expect(first).not.toBe(second)
+    })
+
     it('should generate a valid refresh token', () => {
       const userId = 1
       const token = tokenService.generateRefreshToken(userId)
@@ -488,6 +495,51 @@ describe('TokenService', () => {
       // Verify new access token
       const newVerified = tokenService.verifyAccessToken(newAccessToken)
       expect(newVerified.sub).toBe(userId)
+    })
+  })
+
+  describe('refresh secret configuration', () => {
+    const makeService = (jwtRefreshSecret: string | undefined) =>
+      new TokenService(
+        {
+          security: {
+            jwtSecret: 'shared-access-secret-at-least-32-characters',
+            jwtExpiresIn: '1h',
+            jwtRefreshSecret,
+            jwtRefreshExpiresIn: '7d',
+          },
+        } as unknown as ConfigService,
+        container.resolve(LoggerService)
+      )
+
+    it('should issue and verify refresh tokens when JWT_REFRESH_SECRET is not set', () => {
+      const service = makeService(undefined)
+
+      const token = service.generateRefreshToken(7)
+
+      expect(service.verifyRefreshToken(token).sub).toBe(7)
+    })
+
+    it('should not accept a refresh token as an access token when secrets are shared', () => {
+      const service = makeService(undefined)
+      const refreshToken = service.generateRefreshToken(7)
+
+      expect(() => service.verifyAccessToken(refreshToken)).toThrow(
+        UnauthorizedException
+      )
+    })
+
+    it('should not accept an access token as a refresh token when secrets are shared', () => {
+      const service = makeService('shared-access-secret-at-least-32-characters')
+      const accessToken = service.generateAccessToken({
+        sub: 7,
+        email: 'a@example.com',
+        role: UserRole.USER,
+      })
+
+      expect(() => service.verifyRefreshToken(accessToken)).toThrow(
+        UnauthorizedException
+      )
     })
   })
 })
