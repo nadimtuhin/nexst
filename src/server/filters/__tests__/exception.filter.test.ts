@@ -206,6 +206,20 @@ describe('ExceptionFilter', () => {
       expect(response.status).toBe(500)
     })
 
+    it('should not expose internal error details to the client', async () => {
+      const error = new Error(
+        'Invalid `prisma.user.create()` invocation in /srv/app/src/server/x.ts: Unique constraint failed on the fields: (`token`)'
+      )
+      const response = ExceptionFilter.catch(error)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(body).toEqual({
+        statusCode: 500,
+        message: 'Internal Server Error',
+      })
+    })
+
     it('should handle Error without message', () => {
       const error = new Error()
       const response = ExceptionFilter.catch(error)

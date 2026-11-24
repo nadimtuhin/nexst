@@ -26,18 +26,9 @@ export class ExceptionFilter {
       )
     }
 
-    // Handle generic errors
-    if (error instanceof Error) {
-      return NextResponse.json(
-        {
-          statusCode: 500,
-          message: error.message || 'Internal Server Error',
-        },
-        { status: 500 }
-      )
-    }
-
-    // Unknown error
+    // Any other error is unexpected. Its message can contain internals
+    // (database errors, file paths, secrets), so it is logged above and a
+    // generic message is returned to the client.
     return NextResponse.json(
       {
         statusCode: 500,
